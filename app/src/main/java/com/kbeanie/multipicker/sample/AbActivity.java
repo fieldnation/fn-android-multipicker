@@ -15,6 +15,8 @@ import com.kbeanie.multipicker.sample.prefs.AppPreferences;
  */
 public class AbActivity extends AppCompatActivity {
 
+
+    // testing
     private AdView adView;
 
     protected AppPreferences preferences;
