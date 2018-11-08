@@ -293,10 +293,8 @@ public class FileProcessorThread extends Thread {
         String[] projection = {MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME, MediaStore.MediaColumns.MIME_TYPE};
 
         // Workaround for various implementations for Google Photos/Picasa
-        if (file.getQueryUri().startsWith(
-                "content://com.android.gallery3d.provider")) {
-            file.setOriginalPath(Uri.parse(file.getQueryUri().replace(
-                    "com.android.gallery3d", "com.google.android.gallery3d")).toString());
+        if (file.getQueryUri().startsWith("content://com.android.gallery3d.provider")) {
+            file.setOriginalPath(Uri.parse(file.getQueryUri().replace("com.android.gallery3d", "com.google.android.gallery3d")).toString());
         } else {
             file.setOriginalPath(file.getQueryUri());
         }
@@ -338,16 +336,27 @@ public class FileProcessorThread extends Thread {
             }
         }
 
-        // Check if DownloadsDocument in which case, we can get the local copy by using the content provider
-        if (file.getOriginalPath().startsWith("content:") && isDownloadsDocument(Uri.parse(file.getOriginalPath()))) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                String[] data = getPathAndMimeType(file);
-                if (data[0] != null) {
-                    file.setOriginalPath(data[0]);
+        if (!TextUtils.isEmpty(Uri.parse(file.getOriginalPath()).toString())) {
+            try {
+                if (!file.getQueryUri().contains("raw%")) {
+
+                    // Check if DownloadsDocument in which case, we can get the local copy by using the content provider
+                    if (file.getOriginalPath().startsWith("content:") && isDownloadsDocument(Uri.parse(file.getOriginalPath()))) {
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            String[] data = getPathAndMimeType(file);
+                            if (data[0] != null) {
+                                file.setOriginalPath(data[0]);
+                            }
+                            if (data[1] != null) {
+                                file.setMimeType(data[1]);
+                            }
+                        }
+                    }
+
                 }
-                if (data[1] != null) {
-                    file.setMimeType(data[1]);
-                }
+            } catch (Exception e){
+                e.printStackTrace();
             }
         }
 
