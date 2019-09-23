@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/fn-android-multipicker.iml" filepath="$PROJECT_DIR$/fn-android-multipicker.iml" />
       <module fileurl="file://$PROJECT_DIR$/multipicker/multipicker.iml" filepath="$PROJECT_DIR$/multipicker/multipicker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/projects-fn-android-multipicker.iml" filepath="$PROJECT_DIR$/projects-fn-android-multipicker.iml" />
     </modules>
   </component>
 </project>
