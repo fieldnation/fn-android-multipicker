@@ -109,11 +109,7 @@ public class FilePicker extends PickerManager {
 
     /**
      * Call this method from
-     * {@link Activity#onActivityResult(int, int, Intent)}
-     * OR
-     * {@link Fragment#onActivityResult(int, int, Intent)}
-     * OR
-     * {@link android.app.Fragment#onActivityResult(int, int, Intent)}
+     * onActivityResult
      * @param data
      */
     @Override
