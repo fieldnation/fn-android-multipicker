@@ -119,7 +119,7 @@ public abstract class PickerManager {
     protected abstract String pick() throws PickerException;
 
     /**
-     * This method should be called after {@link Activity#onActivityResult(int, int, Intent)} is  called.
+     * This method should be called after onActivityResult is  called.
      *
      * @param data
      */

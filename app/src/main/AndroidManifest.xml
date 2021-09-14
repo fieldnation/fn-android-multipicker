@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kbeanie.multipicker.sample">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
         android:name=".AbApplication"
         android:allowBackup="true"
@@ -95,16 +98,6 @@
             android:label="Image Preview"
             android:screenOrientation="portrait" />
 
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="ccbe3957847c84647fbf4938cf6adb0da0a5583e" />
-
     </application>
-
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
 </manifest>

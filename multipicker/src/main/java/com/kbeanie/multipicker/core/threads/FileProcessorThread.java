@@ -159,7 +159,7 @@ public class FileProcessorThread extends Thread {
 
     private void processFile(ChosenFile file) throws PickerException {
         String uri = file.getQueryUri();
-        LogUtils.d(TAG, "processFile: uri"+ uri);
+        LogUtils.d(TAG, "processFile: uri" + uri);
         if (uri.startsWith("file://") || uri.startsWith("/")) {
             file = sanitizeUri(file);
             file.setDisplayName(Uri.parse(file.getOriginalPath()).getLastPathSegment());
@@ -276,6 +276,8 @@ public class FileProcessorThread extends Thread {
             }
         } catch (IOException e) {
             throw new PickerException(e);
+        } catch (Exception e) {
+            throw new PickerException(e.getLocalizedMessage());
         } finally {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 close(parcelFileDescriptor);
@@ -293,8 +295,10 @@ public class FileProcessorThread extends Thread {
         String[] projection = {MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME, MediaStore.MediaColumns.MIME_TYPE};
 
         // Workaround for various implementations for Google Photos/Picasa
-        if (file.getQueryUri().startsWith("content://com.android.gallery3d.provider")) {
-            file.setOriginalPath(Uri.parse(file.getQueryUri().replace("com.android.gallery3d", "com.google.android.gallery3d")).toString());
+        if (file.getQueryUri().startsWith(
+                "content://com.android.gallery3d.provider")) {
+            file.setOriginalPath(Uri.parse(file.getQueryUri().replace(
+                    "com.android.gallery3d", "com.google.android.gallery3d")).toString());
         } else {
             file.setOriginalPath(file.getQueryUri());
         }
@@ -336,9 +340,6 @@ public class FileProcessorThread extends Thread {
             }
         }
 
-        if (!TextUtils.isEmpty(Uri.parse(file.getOriginalPath()).toString())) {
-            try {
-                if (!file.getQueryUri().contains("raw%")) {
 
                     // Check if DownloadsDocument in which case, we can get the local copy by using the content provider
                     if (file.getOriginalPath().startsWith("content:") && isDownloadsDocument(Uri.parse(file.getOriginalPath()))) {
@@ -351,12 +352,6 @@ public class FileProcessorThread extends Thread {
                             if (data[1] != null) {
                                 file.setMimeType(data[1]);
                             }
-                        }
-                    }
-
-                }
-            } catch (Exception e){
-                e.printStackTrace();
             }
         }
 
@@ -373,9 +368,17 @@ public class FileProcessorThread extends Thread {
             // ExternalStorageProvider
             if (isDownloadsDocument(uri)) {
                 final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-
+                if (id.startsWith("raw:")) {
+                    String[] data = new String[2];
+                    data[0] = id.replaceFirst("raw:", "");
+                    data[1] = null;
+                    return data;
+                }
+                Uri contentUri = uri;
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    contentUri = ContentUris.withAppendedId(
+                            Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                }
                 return getDataAndMimeType(contentUri, null, null, file.getType());
             }
             // MediaProvider
@@ -415,7 +418,7 @@ public class FileProcessorThread extends Thread {
             return data;
         }
 
-        return null;
+        return new String[]{null, null};
     }
 
     private String[] getDataAndMimeType(Uri uri, String selection,
@@ -433,11 +436,14 @@ public class FileProcessorThread extends Thread {
                 data[1] = guessMimeTypeFromUrl(path, type);
                 return data;
             }
+        } catch (Exception e) {
+            data[0] = uri.toString();
+            return data;
         } finally {
             if (cursor != null)
                 cursor.close();
         }
-        return null;
+        return data;
     }
 
     private boolean isExternalStorageDocument(Uri uri) {
@@ -631,6 +637,7 @@ public class FileProcessorThread extends Thread {
     }
 
     protected ChosenImage ensureMaxWidthAndHeight(int maxWidth, int maxHeight, int quality, ChosenImage image) {
+        FileOutputStream stream = null;
         try {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -660,7 +667,7 @@ public class FileProcessorThread extends Thread {
                     File file = new File(
                             (original.getParent() + File.separator + original.getName()
                                     .replace(".", "-resized.")));
-                    FileOutputStream stream = new FileOutputStream(file);
+                    stream = new FileOutputStream(file);
 
                     Matrix matrix = new Matrix();
                     matrix.postScale((float) scaledDimension[0] / imageWidth, (float) scaledDimension[1] / imageHeight);
@@ -679,6 +686,12 @@ public class FileProcessorThread extends Thread {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                close(stream);
+            } catch (PickerException e) {
+                e.printStackTrace();
+            }
         }
         return image;
     }
@@ -779,7 +792,7 @@ public class FileProcessorThread extends Thread {
         try {
             ExifInterface exif = new ExifInterface(path);
             width = exif.getAttribute(ExifInterface.TAG_IMAGE_WIDTH);
-            if (width.equals("0")) {
+            if ("0".equals(width)) {
                 SoftReference<Bitmap> bmp = getBitmapImage(path);
                 width = Integer.toString(bmp.get().getWidth());
                 bmp.clear();
@@ -795,7 +808,7 @@ public class FileProcessorThread extends Thread {
         try {
             ExifInterface exif = new ExifInterface(path);
             height = exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH);
-            if (height.equals("0")) {
+            if ("0".equals(height)) {
                 SoftReference<Bitmap> bmp = getBitmapImage(path);
                 height = Integer.toString(bmp.get().getHeight());
                 bmp.clear();

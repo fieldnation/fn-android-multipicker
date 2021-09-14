@@ -2,7 +2,7 @@ package com.kbeanie.multipicker.sample;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -48,7 +48,7 @@ public class ImagePreviewActivity extends AbActivity {
 
         Glide.with(this)
                 .load(Uri.fromFile(new File(uri)))
-//                .uriplaceholder(R.drawable.ic_image)
+//                .placeholder(R.drawable.ic_image)
                 .into(ivImageGlide);
     }
 }
